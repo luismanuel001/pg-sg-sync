@@ -1,0 +1,61 @@
+{
+  "type": "jdbc",
+  "jdbc": {
+    "url": "jdbc:{{ .Env.DATABASE_URL }}/{{ .Env.DATABASE_NAME }}?loglevel=0",
+    "user": "{{ .Env.DATABASE_USER }}",
+    "password": "{{ .Env.DATABASE_PASSWORD }}",
+    "schedule": "0 0-59 0-23 ? * *",
+    "sql": {
+        "statement": "select id as _id, name, description, parent_id, image_pool_url, created_at, updated_at from taxons where updated_at > ?",
+        "parameter": [ "$metrics.lastexecutionstart" ]
+    },
+    "index_settings": {
+      "index": {
+        "number_of_shards": 10
+      }
+    },
+    "type_mapping" : {
+        "taxon": {
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "type": "integer"
+                },
+                "imagePoolURL": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "date"
+                },
+                "createdAt": {
+                    "type": "date"
+                }
+            }
+        }
+    },
+    "index": "ads",
+    "type": "taxon",
+    "elasticsearch": {
+      "cluster": "ELASTICSEARCH_INDEX",
+      "host": "ELASTICSEARCH_URL",
+      "port": "ELASTICSEARCH_PORT"
+    },
+    "statefile": "/statefile.json",
+    "metrics": {
+      "enabled": true,
+      "interval": "1m",
+      "logger": {
+        "plain": false,
+        "json": true
+      }
+    }
+  }
+}
